@@ -9,7 +9,7 @@ pipeline {
         }
 	stage('Test') {
             steps {
-                sh 'apt-get install pytest'
+                sh 'sudo apt-get install pytest'
 		sh 'pytest -v --junit-xml test-reports/results.xml sources/test_calc.py'
             }
             post {
