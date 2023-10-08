@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+            agent any
     stages {
         stage('Build') {
             steps {
@@ -7,13 +7,26 @@ pipeline {
                 stash(name: 'compiled-results', includes: 'sources/*.py*')
             }
         }
-	stage('Test') {
+        stage('Test') {
             steps {
-		sh 'pytest -v --junit-xml test-reports/results.xml sources/test_calc.py'
+                sh 'pytest -v --junit-xml test-reports/results.xml sources/test_calc.py'
             }
             post {
                 always {
                     junit "test-reports/results.xml"
+                }
+            }
+        }
+        stage('Deliver') {
+            steps {
+                dir(path: env.BUILD_ID) {
+                    unstash(name: 'compiled-results')
+                    sh 'pyinstaller -F sources/prog.py'
+                }
+            }
+            post {
+                success {
+                    archiveArtifacts "${env.BUILD_ID}/dist/prog"
                 }
             }
         }
